@@ -32,3 +32,5 @@ ASP.NET Web API SuperHero App using SqlServer database.
    
    then `Update-Database`
 7. Now set up the controller to use the database with the DataContext as an entry point. Get the controller working as desired then add other controllers for CRUD operations.
+8. Clean up unneeded files.
+9. Separate out files and methods into projects as dependency injections and services to be used etc.
