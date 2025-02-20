@@ -2,7 +2,7 @@
 
 ASP.NET Web API SuperHero App using SqlServer database.
 
-This app enables you to track basic information about superheroes in a Sql Server database and manages this via an API that makes use of controllers and manages data via EntityFrameworkCore.
+This app enables you to track basic information about superheroes in a Sql Server database and manages this via an API that makes use of controllers and manages data via EntityFrameworkCore (the recommended Object-Relational Mapper (ORM) for .NET).
 
 ## Initial set up and discovery
 
@@ -43,11 +43,11 @@ This app enables you to track basic information about superheroes in a Sql Serve
 
 8. Open the Package Manager Console and enter the following commands:
 
-   `Add-Migration Initial` Initial is the name of the migration that will be stored in the Migrations folder
+   `Add-Migration Initial` Initial is the name of the migration that will be automatically generated and stored in the Migrations folder
 
-   then `Update-Database`
+   then `Update-Database` which applies the migrations to the database.
 
-   Note: These commands ensure the database has the needful table(s) and when new tables need to be added similar commands need to be run from the Package Manager Console `Add-Migration NameOfMigration` then `Update-Database` OR via the command line once installed using `dotnet tool install --global dotnet-ef` command then `dotnet ef migrations add AddUnhandledExceptionTable --project Superhero --startup-project Superhero` then `dotnet ef database update`.
+   Note: These commands ensure the database has the needful table(s) and when new tables need to be added similar commands need to be run from the Package Manager Console `Add-Migration NameOfMigration` then `Update-Database` (to do the update on a specific migration you need to use the `Update-Database NameOfMigration`) OR via the command line once ef tool is installed using `dotnet tool install --global dotnet-ef` command, then `dotnet ef migrations add AddUnhandledExceptionTable --project Superhero --startup-project Superhero` then `dotnet ef database update`. See [LearnEntityFrameworkCore](https://www.learnentityframeworkcore.com/) for more details.
 
 9. Now set up the controller to use the database with the DataContext as an entry point. Get the controller working as desired then add other controllers for CRUD operations.
 10. Clean up unneeded files.
