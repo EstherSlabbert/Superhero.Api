@@ -8,9 +8,10 @@ namespace Superhero.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Place { get; set; }
+        public SuperHero() { }
         public SuperHero(string name, string firstName = "", string lastName = "", string place = "")
         {
-            name.ThrowIfNull();
+            name.ThrowIfNullOrWhiteSpace();
 
             Name = name;
             FirstName = firstName;
@@ -20,7 +21,7 @@ namespace Superhero.Entities
 
         public void UpdateHero(string name, string firstName = "", string lastName = "", string place = "")
         {
-            name.ThrowIfNull();
+            name.ThrowIfNullOrWhiteSpace();
 
             Name = name;
             FirstName = firstName;
