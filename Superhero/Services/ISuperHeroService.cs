@@ -6,7 +6,7 @@ namespace Superhero.Services
     {
         Task<List<SuperHeroDetailsDto>> GetAllSuperHeroesAsync();
         Task<SuperHeroDetailsDto?> GetSuperHeroByIdAsync(int id);
-        Task<SuperHeroDetailsDto> CreateSuperHeroAsync(SuperHeroDto newHeroDetails);
+        Task CreateSuperHeroAsync(SuperHeroDto newHeroDetails);
         Task<SuperHeroDetailsDto?> UpdateSuperHeroAsync(int id, SuperHeroDto updatedHeroDetails);
         Task DeleteSuperHeroAsync(int id);
     }

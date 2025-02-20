@@ -23,28 +23,26 @@ namespace Superhero.Services
 
         public async Task<SuperHeroDetailsDto?> GetSuperHeroByIdAsync(int id)
         {
-            var hero = await _repository.GetSuperHeroByIdAsync(id) ?? throw new EntityNotFoundException($"Hero with id \"{id}\" was not found.");
+            var hero = await _repository.GetSuperHeroByIdAsync(id) ?? throw new EntityNotFoundException($@"Hero with id ""{id}"" was not found.");
             var heroDto = GetSuperHeroDetailsDto(hero);
             return heroDto;
         }
 
-        public async Task<SuperHeroDetailsDto> CreateSuperHeroAsync(SuperHeroDto newHeroDetails)
+        public async Task CreateSuperHeroAsync(SuperHeroDto newHeroDetails)
         {
-            var newHero = await _repository.CreateSuperHeroAsync(newHeroDetails);
-            var newHeroDto = GetSuperHeroDetailsDto(newHero);
-            return newHeroDto;
+            await _repository.CreateSuperHeroAsync(newHeroDetails);
         }
 
         public async Task<SuperHeroDetailsDto?> UpdateSuperHeroAsync(int id, SuperHeroDto updatedHeroDetails)
         {
-            var hero = await _repository.UpdateSuperHeroAsync(id, updatedHeroDetails) ?? throw new EntityNotFoundException($"Hero with id \"{id}\" was not found.");
+            var hero = await _repository.UpdateSuperHeroAsync(id, updatedHeroDetails) ?? throw new EntityNotFoundException($@"Hero with id ""{id}"" was not found.");
             var heroDto = GetSuperHeroDetailsDto(hero);
             return heroDto;
         }
 
         public async Task DeleteSuperHeroAsync(int id)
         {
-            var hero = await _repository.GetSuperHeroByIdAsync(id) ?? throw new EntityNotFoundException($"Hero with id \"{id}\" was not found.");
+            _ = await _repository.GetSuperHeroByIdAsync(id) ?? throw new EntityNotFoundException($@"Hero with id ""{id}"" was not found.");
             await _repository.DeleteSuperHeroAsync(id);
         }
 
