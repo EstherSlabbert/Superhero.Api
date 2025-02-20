@@ -45,7 +45,7 @@ ASP.NET Web API SuperHero App using SqlServer database.
 
    then `Update-Database`
 
-   Note: These commands ensure the database has the needful table(s) and when new tables need to be added similar commands need to be run from the Package Manager Console `Add-Migration NameOfMigration` then `Update-Database` <!-- OR via the command line like `dotnet ef migrations add AddUnhandledExceptionTable --project Superhero.Api --startup-project Superhero.Api` then `dotnet ef database update`-->
+   Note: These commands ensure the database has the needful table(s) and when new tables need to be added similar commands need to be run from the Package Manager Console `Add-Migration NameOfMigration` then `Update-Database` OR via the command line like `dotnet ef migrations add AddUnhandledExceptionTable --project Superhero --startup-project Superhero` then `dotnet ef database update`
 
 9. Now set up the controller to use the database with the DataContext as an entry point. Get the controller working as desired then add other controllers for CRUD operations.
 10. Clean up unneeded files.
