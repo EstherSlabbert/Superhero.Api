@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Superhero.Entities;
 using Superhero.Services;
+using Superhero.DTOs;
 
 namespace Superhero.Controllers
 {
@@ -16,37 +16,42 @@ namespace Superhero.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<SuperHero>>> GetAllSuperHeroes()
+        public async Task<ActionResult<List<SuperHeroDetailsDto>>> GetAllSuperHeroes()
         {
-            var heroes = await _superHeroService.GetAllSuperHeroesAsync();
-            return Ok(heroes);
+            var heroDtos = await _superHeroService.GetAllSuperHeroesAsync();
+
+            return Ok(heroDtos);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<SuperHero>> GetSuperHeroWithId(int id)
+        public async Task<ActionResult<SuperHeroDetailsDto>> GetSuperHeroWithId(int id)
         {
-            var hero = await _superHeroService.GetSuperHeroByIdAsync(id);
-            if (hero == null) return NotFound();
-            return Ok(hero);
+            var heroDto = await _superHeroService.GetSuperHeroByIdAsync(id);
+
+            return Ok(heroDto);
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<SuperHero>>> CreateNewSuperHero(SuperHero hero)
+        public async Task<ActionResult<List<SuperHeroDetailsDto>>> CreateNewSuperHero(SuperHeroDto heroDto)
         {
-            await _superHeroService.CreateSuperHeroAsync(hero);
-            var heroes = await _superHeroService.GetAllSuperHeroesAsync();
-            return Ok(heroes);
+            await _superHeroService.CreateSuperHeroAsync(heroDto);
+
+            var heroDtos = await _superHeroService.GetAllSuperHeroesAsync();
+
+            return Ok(heroDtos);
         }
 
-        [HttpPut]
-        public async Task<ActionResult<List<SuperHero>>> UpdateSuperHero(SuperHero updatedHero)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<List<SuperHeroDetailsDto>>> UpdateSuperHero([FromRoute] int id, [FromBody] SuperHeroDto updatedHeroDto)
         {
-            await _superHeroService.UpdateSuperHeroAsync(updatedHero);
-            return Ok(await _superHeroService.GetAllSuperHeroesAsync());
+            await _superHeroService.UpdateSuperHeroAsync(id, updatedHeroDto);
+            var heroesDtos = await _superHeroService.GetAllSuperHeroesAsync();
+
+            return Ok(heroesDtos);
         }
 
         [HttpDelete]
-        public async Task<ActionResult<List<SuperHero>>> DeleteSuperHero(int heroId)
+        public async Task<ActionResult<List<SuperHeroDetailsDto>>> DeleteSuperHero(int heroId)
         {
             await _superHeroService.DeleteSuperHeroAsync(heroId);
             var heroes = await _superHeroService.GetAllSuperHeroesAsync();

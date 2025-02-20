@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Superhero.Data;
+using Superhero.ErrorHandling;
 using Superhero.Repositories;
 using Superhero.Services;
 
@@ -17,11 +18,15 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// Register repository and service
+// Register repositories and service(s)
 builder.Services.AddScoped<ISuperHeroRepository, SuperHeroRepository>();
+builder.Services.AddScoped<IUnhandledExceptionRepository, UnhandledExceptionRepository>();
 builder.Services.AddScoped<ISuperHeroService, SuperHeroService>();
 
 var app = builder.Build();
+
+// Configure exception handling
+app.MapExceptionsToProblemDetails();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

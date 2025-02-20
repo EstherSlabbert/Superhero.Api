@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Superhero.Data;
+using Superhero.DTOs;
 using Superhero.Entities;
 
 namespace Superhero.Repositories
@@ -15,32 +16,43 @@ namespace Superhero.Repositories
 
         public async Task<List<SuperHero>> GetAllSuperHeroesAsync()
         {
-            return await _context.SuperHeroes.ToListAsync();
+            var heroes = await _context.SuperHeroes.ToListAsync();
+            return heroes;
         }
 
         public async Task<SuperHero?> GetSuperHeroByIdAsync(int id)
         {
-            return await _context.SuperHeroes.FindAsync(id);
-        }
-
-        public async Task<SuperHero> CreateSuperHeroAsync(SuperHero hero)
-        {
-            _context.SuperHeroes.Add(hero);
-            await _context.SaveChangesAsync();
+            var hero = await _context.SuperHeroes.FindAsync(id);
             return hero;
         }
 
-        public async Task<SuperHero> UpdateSuperHeroAsync(SuperHero hero)
+        public async Task<SuperHero> CreateSuperHeroAsync(SuperHeroDto newHeroDetails)
         {
+            var newHero = new SuperHero(newHeroDetails.Name, newHeroDetails.FirstName, newHeroDetails.LastName, newHeroDetails.Place);
+
+            _context.SuperHeroes.Add(newHero);
+            await _context.SaveChangesAsync();
+
+            return newHero;
+        }
+
+        public async Task<SuperHero?> UpdateSuperHeroAsync(int id, SuperHeroDto updatedHeroDetails)
+        {
+            var hero = await _context.SuperHeroes.FindAsync(id);
+            if (hero is null) return null;
+
+            hero.UpdateHero(updatedHeroDetails.Name, updatedHeroDetails.FirstName, updatedHeroDetails.LastName, updatedHeroDetails.Place);
+
             _context.SuperHeroes.Update(hero);
             await _context.SaveChangesAsync();
+
             return hero;
         }
 
         public async Task DeleteSuperHeroAsync(int id)
         {
             var hero = await _context.SuperHeroes.FindAsync(id);
-            if (hero != null)
+            if (hero is not null)
             {
                 _context.SuperHeroes.Remove(hero);
                 await _context.SaveChangesAsync();

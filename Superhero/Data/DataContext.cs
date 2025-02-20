@@ -7,8 +7,10 @@ namespace Superhero.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-            
         }
-        public DbSet<SuperHero> SuperHeroes { get; set; } //Table name
+
+        // The DbSet<Entity> is the way EntityFramework defines new tables and their contents
+        public DbSet<SuperHero> SuperHeroes { get; set; }
+        public DbSet<UnhandledException> UnhandledExceptions { get; set; }
     }
 }

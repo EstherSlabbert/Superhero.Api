@@ -1,13 +1,13 @@
-using Superhero.Entities;
+using Superhero.DTOs;
 
 namespace Superhero.Services
 {
     public interface ISuperHeroService
     {
-        Task<List<SuperHero>> GetAllSuperHeroesAsync();
-        Task<SuperHero?> GetSuperHeroByIdAsync(int id);
-        Task<SuperHero> CreateSuperHeroAsync(SuperHero hero);
-        Task<SuperHero> UpdateSuperHeroAsync(SuperHero hero);
+        Task<List<SuperHeroDetailsDto>> GetAllSuperHeroesAsync();
+        Task<SuperHeroDetailsDto?> GetSuperHeroByIdAsync(int id);
+        Task<SuperHeroDetailsDto> CreateSuperHeroAsync(SuperHeroDto newHeroDetails);
+        Task<SuperHeroDetailsDto?> UpdateSuperHeroAsync(int id, SuperHeroDto updatedHeroDetails);
         Task DeleteSuperHeroAsync(int id);
     }
 }

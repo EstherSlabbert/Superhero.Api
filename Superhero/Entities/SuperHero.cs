@@ -1,11 +1,31 @@
-﻿namespace Superhero.Entities
+﻿using Superhero.Common;
+
+namespace Superhero.Entities
 {
-    public class SuperHero
+    public class SuperHero : Entity
     {
-        public int Id { get; set; }
-        public required string Name {  get; set; }
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Place {  get; set; } = string.Empty;
+        public string Name { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Place { get; set; }
+        public SuperHero(string name, string firstName = "", string lastName = "", string place = "")
+        {
+            name.ThrowIfNull();
+
+            Name = name;
+            FirstName = firstName;
+            LastName = lastName;
+            Place = place;
+        }
+
+        public void UpdateHero(string name, string firstName = "", string lastName = "", string place = "")
+        {
+            name.ThrowIfNull();
+
+            Name = name;
+            FirstName = firstName;
+            LastName = lastName;
+            Place = place;
+        }
     }
 }
