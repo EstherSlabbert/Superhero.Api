@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Superhero", "Superhero\Supe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{1AC5D765-1883-4454-80BF-896C50C3889C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcceptanceTests", "AcceptanceTests\AcceptanceTests.csproj", "{8A08BEFB-7E04-4649-BB93-6A8838B5BD5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{1AC5D765-1883-4454-80BF-896C50C3889C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AC5D765-1883-4454-80BF-896C50C3889C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AC5D765-1883-4454-80BF-896C50C3889C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A08BEFB-7E04-4649-BB93-6A8838B5BD5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A08BEFB-7E04-4649-BB93-6A8838B5BD5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A08BEFB-7E04-4649-BB93-6A8838B5BD5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A08BEFB-7E04-4649-BB93-6A8838B5BD5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
