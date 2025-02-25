@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Superhero.Common;
 using Superhero.Data;
 using Superhero.DTOs;
+using Superhero.Entities;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -26,22 +28,24 @@ namespace AcceptanceTests
         public async Task InitializeAsync()
         {
             await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM SuperHeroes");
-            
+        }
+
+        private async Task AddDefaultHeroToDatabase()
+        {
             // Add default test superhero
-            var testHero = new Superhero.Entities.SuperHero
+            var testHero = new SuperHero
             {
                 Name = "Test Hero",
-                FirstName = "Test",
-                LastName = "Hero",
+                FirstName = "Test Firstname",
+                LastName = "Test Lastname",
                 Place = "Test City"
             };
-            _dbContext.SuperHeroes.Add(testHero);
+            await _dbContext.SuperHeroes.AddAsync(testHero);
             await _dbContext.SaveChangesAsync();
-            
+
             // Store the generated ID for test assertions
             _testHeroId = testHero.Id;
         }
-
 
         // Runs after each test (optional, for additional cleanup)
         public async Task DisposeAsync()
@@ -52,56 +56,72 @@ namespace AcceptanceTests
         [Fact]
         public async Task GetAllSuperHeroes_ReturnsSuccess()
         {
+            // Arrange
+            await AddDefaultHeroToDatabase();
+
             // Act
             var response = await _client.GetAsync("/api/SuperHero");
 
             // Assert
             response.EnsureSuccessStatusCode();
             var heroes = await response.Content.ReadFromJsonAsync<List<SuperHeroDetailsDto>>();
-            Assert.NotNull(heroes);
-            Assert.NotEmpty(heroes);
+            heroes.ShouldNotBeNull();
+            heroes.ShouldNotBeEmpty();
+            heroes.ShouldBeOfType<List<SuperHeroDetailsDto>>();
+            heroes.ShouldHaveSingleItem();
         }
 
         [Fact]
         public async Task CreateSuperHero_ReturnsSuccess()
         {
             // Arrange
-            var newHero = new SuperHeroDto("New Test Hero", "New Test", "New Hero", "New Test City");
+            var newHero = new SuperHeroDto("New Test Hero", "New Test Name", "New Test Surname", "New Test City");
 
             // Act
             var response = await _client.PostAsJsonAsync("/api/SuperHero", newHero);
 
             // Assert
             response.EnsureSuccessStatusCode();
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
         }
 
         [Fact]
-        public async Task CreateSuperHero_StoresSuperHeroInDb()
+        public async Task CreateSuperHero_ReturnsErrorWhenInputIsInvalid()
+        {
+            // Arrange & Act
+            var act = () => _client.PostAsJsonAsync("/api/SuperHero", new SuperHeroDto(null));
+
+            // Assert
+            act.ShouldThrow<InvalidParameterException>($@"The argument ""name"" was not provided.");
+        }
+
+        [Fact]
+        public async Task CreateSuperHero_StoresSuperHeroInDatabase()
         {
             // Arrange
-            var newHero = new SuperHeroDto("New Test Hero", "New", "Test", "New City");
+            var newHero = new SuperHeroDto("Wonder Woman", "Diana", "Price", "Washington, D.C.");
 
             // Act
             var response = await _client.PostAsJsonAsync("/api/SuperHero", newHero);
             response.EnsureSuccessStatusCode();
-            
+
             // Assert
-            var createdHero = await _dbContext.SuperHeroes
-                .FirstOrDefaultAsync(h => h.Name == "New Test Hero");
-                
-            Assert.NotNull(createdHero);
-            Assert.Equal(newHero.Name, createdHero.Name);
-            Assert.Equal(newHero.FirstName, createdHero.FirstName);
-            Assert.Equal(newHero.LastName, createdHero.LastName);
-            Assert.Equal(newHero.Place, createdHero.Place);
+            var createdHero = await _dbContext.SuperHeroes.AsNoTracking()
+                .FirstOrDefaultAsync(h => h.Name == "Wonder Woman");
+
+            createdHero.ShouldNotBeNull();
+            createdHero.Name.ShouldBe(newHero.Name);
+            createdHero.FirstName.ShouldBe(newHero.FirstName);
+            createdHero.LastName.ShouldBe(newHero.LastName);
+            createdHero.Place.ShouldBe(newHero.Place);
         }
 
         [Fact]
         public async Task UpdateSuperHero_ReturnsSuccess()
         {
             // Arrange
-            var updatedHero = new SuperHeroDto("Updated Hero", "Updated", "Hero", "Updated City");
+            await AddDefaultHeroToDatabase();
+            var updatedHero = new SuperHeroDto("Superman", "Clark", "Kent", "Metropolis");
 
             // Act
             var response = await _client.PutAsJsonAsync($"/api/SuperHero/{_testHeroId}", updatedHero);
@@ -109,13 +129,20 @@ namespace AcceptanceTests
             // Assert
             response.EnsureSuccessStatusCode();
             var hero = await response.Content.ReadFromJsonAsync<SuperHeroDetailsDto>();
-            Assert.NotNull(hero);
-            Assert.Equal(updatedHero.Name, hero.Name);
+
+            hero.ShouldNotBeNull();
+            hero.Name.ShouldBe(updatedHero.Name);
+            hero.FirstName.ShouldBe(updatedHero.FirstName);
+            hero.LastName.ShouldBe(updatedHero.LastName);
+            hero.Place.ShouldBe(updatedHero.Place);
         }
-        public async Task UpdateSuperHero_UpdatesDataInDatabase()
+
+        [Fact]
+        public async Task UpdateSuperHero_UpdatesSuperHeroInDatabase()
         {
             // Arrange
-            var updatedHero = new SuperHeroDto("Updated Hero", "Updated", "Hero", "Updated City");
+            await AddDefaultHeroToDatabase();
+            var updatedHero = new SuperHeroDto("Batman", "Bruce", "Wayne", "Gotham City");
 
             // Act
             var response = await _client.PutAsJsonAsync($"/api/SuperHero/{_testHeroId}", updatedHero);
@@ -123,35 +150,58 @@ namespace AcceptanceTests
             // Assert
             response.EnsureSuccessStatusCode();
 
-            var dbHero = await _dbContext.SuperHeroes.FindAsync(_testHeroId);
-            Assert.NotNull(dbHero);
-            Assert.Equal(updatedHero.Name, dbHero.Name);
-            Assert.Equal(updatedHero.FirstName, dbHero.FirstName);
-            Assert.Equal(updatedHero.LastName, dbHero.LastName);
-            Assert.Equal(updatedHero.Place, dbHero.Place);
+            var dbHero = await _dbContext.SuperHeroes.AsNoTracking()
+                .FirstOrDefaultAsync(hero => hero.Id == _testHeroId);
+            dbHero.ShouldNotBeNull();
+            dbHero.Name.ShouldBe(updatedHero.Name);
+            dbHero.FirstName.ShouldBe(updatedHero.FirstName);
+            dbHero.LastName.ShouldBe(updatedHero.LastName);
+            dbHero.Place.ShouldBe(updatedHero.Place);
         }
 
         [Fact]
-        public async Task DeleteSuperHero_ReturnsNoContent()
+        public async Task DeleteSuperHero_ReturnsSuccess()
         {
+            // Arrange
+            await AddDefaultHeroToDatabase();
+
             // Act
             var response = await _client.DeleteAsync($"/api/SuperHero/{_testHeroId}");
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task DeleteSuperHero_RemovesHeroInDatabase()
+        {
+            // Arrange
+            await AddDefaultHeroToDatabase();
+
+            // Act
+            await _client.DeleteAsync($"/api/SuperHero/{_testHeroId}");
+
+            // Assert
+            var heroInDb = await _dbContext.SuperHeroes.AsNoTracking()
+                .FirstOrDefaultAsync(h => h.Id == _testHeroId);
+            heroInDb?.ShouldBeNull();
         }
 
         [Fact]
         public async Task GetSuperHeroById_ReturnsSuccess()
         {
+            // Arrange
+            await AddDefaultHeroToDatabase();
+
             // Act
             var response = await _client.GetAsync($"/api/SuperHero/{_testHeroId}");
 
             // Assert
             response.EnsureSuccessStatusCode();
             var hero = await response.Content.ReadFromJsonAsync<SuperHeroDetailsDto>();
-            Assert.NotNull(hero);
-            Assert.Equal(_testHeroId, hero.Id);
+
+            hero.ShouldNotBeNull();
+            hero.Id.ShouldBeEquivalentTo(_testHeroId);
         }
 
         [Fact]
@@ -164,11 +214,12 @@ namespace AcceptanceTests
             var response = await _client.GetAsync($"/api/SuperHero/{invalidId}");
 
             // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-            
+            response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+
             // Verify the hero doesn't exist in database
-            var dbHero = await _dbContext.SuperHeroes.FindAsync(invalidId);
-            Assert.Null(dbHero);
+            var dbHero = await _dbContext.SuperHeroes.AsNoTracking()
+                .FirstOrDefaultAsync(hero => hero.Id == invalidId);
+            dbHero?.ShouldBeNull();
         }
     }
 }
